@@ -43,10 +43,11 @@ class Application:
         self.e_input_dir['width'] = 60
         self.e_input_dir.pack()
 
-        self.b_browse = Button(self.input_elements)
-        self.b_browse['text'] = 'Browse'
-        self.b_browse['command'] = self.browse
-        self.b_browse.pack(side=RIGHT)
+        self.b_browse_input = Button(self.input_elements)
+        self.b_browse_input['text'] = 'Browse'
+        self.b_browse_input.bind("<1>", lambda event,  e=self.e_input_dir:
+                                 self.browse(event, e))
+        self.b_browse_input.pack(side=RIGHT)
 
         ############## OUTPUT ELEMENTS ################
         self.output_elements = Frame(master)
@@ -62,10 +63,12 @@ class Application:
         self.e_output_dir['width'] = 60
         self.e_output_dir.pack()
 
-        self.b_browse = Button(self.output_elements)
-        self.b_browse['text'] = 'Browse'
-        self.b_browse['command'] = self.browse
-        self.b_browse.pack(side=RIGHT)
+        self.b_browse_output = Button(self.output_elements)
+        self.b_browse_output['text'] = 'Browse'
+        #self.b_browse_output['command'] = self.browse(self.e_output_dir)
+        self.b_browse_output.bind("<1>", lambda event,  e=self.e_output_dir:
+                                  self.browse(event, e))
+        self.b_browse_output.pack(side=RIGHT)
 
         ############## PARSER ELEMENTS ################
         self.parsers_container = Frame(master)
@@ -78,7 +81,12 @@ class Application:
 
         self.c_parsers = Combobox(self.parsers_container)
         self.c_parsers['values'] = self.parsers
-        self.c_parsers.current(len(self.parsers)-1)
+        
+        selected = 0
+        if len(self.parsers) > 0:
+            selected = len(self.parsers)-1
+
+        self.c_parsers.current(selected)
         self.c_parsers.pack(side=RIGHT)
 
         ############## BUTTON ELEMENTS ################
@@ -103,7 +111,7 @@ class Application:
         """
         Sets up common variables used within the GUI
         """
-        if platform.system == "Windows":
+        if platform.system() == "Windows":
             self.python = 'python'
         else:
             self.python = 'python3'
@@ -119,11 +127,18 @@ class Application:
         self.binary = b
         self.parsers = []
 
-        r = subprocess.check_output([self.python, self.binary, '-lp'])
-        # The output will always have a trailing element after split so I might
-        # as well add the all option
-        self.parsers = r.decode(encoding='utf-8').split('\n')
-        self.parsers[-1] = 'all'
+        try:
+            print(self.python, self.binary)
+            r = subprocess.check_output([self.python, self.binary, '-lp'])
+            # The output will always have a trailing element after split so I
+            # might as well add the all option.
+            self.parsers = r.decode(encoding='utf-8').split('\n')
+            self.parsers[-1] = 'all'
+        except subprocess.CalledProcessError as e:
+            messagebox.showerror('Error', 'Couldn\'t configure the software.' +
+                                 ' It will now autoterminate.')
+            print(e)                        
+            sys.exit(1)
 
     def start(self):
         """
@@ -132,7 +147,7 @@ class Application:
         self.dir = self.e_input_dir.get()
         self.parser = self.c_parsers.get()
 
-        r = subprocess.call(['python3', self.binary, '-d', self.dir,
+        r = subprocess.call([self.python, self.binary, '-d', self.dir,
                                     '-p', self.parser])
 
         if r == 0:
@@ -143,7 +158,7 @@ class Application:
     def exit(self):
         sys.exit()
 
-    def browse(self, element):
+    def browse(self, event, element):
         """
         """
         folder = filedialog.askdirectory()
