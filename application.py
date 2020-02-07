@@ -65,7 +65,6 @@ class Application:
 
         self.b_browse_output = Button(self.output_elements)
         self.b_browse_output['text'] = 'Browse'
-        #self.b_browse_output['command'] = self.browse(self.e_output_dir)
         self.b_browse_output.bind("<1>", lambda event,  e=self.e_output_dir:
                                   self.browse(event, e))
         self.b_browse_output.pack(side=RIGHT)
@@ -148,7 +147,7 @@ class Application:
         self.parser = self.c_parsers.get()
 
         r = subprocess.call([self.python, self.binary, '-d', self.dir,
-                                    '-p', self.parser])
+                            '-p', self.parser])
 
         if r == 0:
             messagebox.showinfo('Success', 'The extraction was a success')
