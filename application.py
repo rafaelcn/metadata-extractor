@@ -13,98 +13,85 @@ import sys
 import subprocess
 import platform
 
-from tkinter import Button, Frame, Entry, Label, Tk
-from tkinter import filedialog, messagebox
 from tkinter import LEFT, RIGHT
 from tkinter import N, W, E, S
-from tkinter.ttk import Combobox
+from tkinter import Tk, filedialog, messagebox
+from tkinter.ttk import Frame, Label, Entry, Button, Combobox
 
 
 class Application:
     def __init__(self, master=None):
         self.config()
 
-        self.main_window = Frame(master)
+        self.main_window = Frame(master, padding="3 3 12 12")
         self.main_window['width'] = 350
         self.main_window.grid(column=0, row=0, sticky=(N, W, E, S))
-        self.main_window.pack()
+
+        master.columnconfigure(0, weight=1)
+        master.rowconfigure(0, weight=1)
 
         ############## INPUT ELEMENTS ################
-        self.input_elements = Frame(master)
-        self.input_elements['pady'] = 20
-        self.input_elements['padx'] = 20
-        self.input_elements.pack()
+        self.l_dir_input = Label(self.main_window)
+        self.l_dir_input['text'] = 'Input directory'
+        self.l_dir_input.grid(column=1, row=1, sticky=(E))
 
-        self.l_dir = Label(self.input_elements)
-        self.l_dir['text'] = 'Input directory'
-        self.l_dir.pack(side=LEFT)
-
-        self.e_input_dir = Entry(self.input_elements)
+        self.e_input_dir = Entry(self.main_window)
         self.e_input_dir['width'] = 60
-        self.e_input_dir.pack()
+        self.e_input_dir.grid(column=2, row=1, sticky=(W, E))
 
-        self.b_browse_input = Button(self.input_elements)
+        self.b_browse_input = Button(self.main_window)
         self.b_browse_input['text'] = 'Browse'
         self.b_browse_input.bind("<1>", lambda event,  e=self.e_input_dir:
                                  self.browse(event, e))
-        self.b_browse_input.pack(side=RIGHT)
+        self.b_browse_input.grid(column=2, row=2, sticky=E)
 
         ############## OUTPUT ELEMENTS ################
-        self.output_elements = Frame(master)
-        self.output_elements['pady'] = 20
-        self.output_elements['padx'] = 20
-        self.output_elements.pack()
+        self.l_dir_output = Label(self.main_window)
+        self.l_dir_output['text'] = 'Output directory'
+        self.l_dir_output.grid(column=1, row=3, sticky=(E))
 
-        self.l_dir = Label(self.output_elements)
-        self.l_dir['text'] = 'Output directory'
-        self.l_dir.pack(side=LEFT)
-
-        self.e_output_dir = Entry(self.output_elements)
+        self.e_output_dir = Entry(self.main_window)
         self.e_output_dir['width'] = 60
-        self.e_output_dir.pack()
+        self.e_output_dir.grid(column=2, row=3, sticky=(W, E))
 
-        self.b_browse_output = Button(self.output_elements)
+        self.b_browse_output = Button(self.main_window)
         self.b_browse_output['text'] = 'Browse'
         self.b_browse_output.bind("<1>", lambda event,  e=self.e_output_dir:
                                   self.browse(event, e))
-        self.b_browse_output.pack(side=RIGHT)
+        self.b_browse_output.grid(column=2, row=4, sticky=E)                                  
 
         ############## PARSER ELEMENTS ################
-        self.parsers_container = Frame(master)
-        self.parsers_container.pack()
-
-        self.l_parsers = Label(self.parsers_container)
+        self.l_parsers = Label(self.main_window)
         self.l_parsers['text'] = 'Select a parser'
-        self.l_parsers['padx'] = 10
-        self.l_parsers.pack(side=LEFT)
+        self.l_parsers.grid(column=1, row=5, sticky=(W))
 
-        self.c_parsers = Combobox(self.parsers_container)
+        self.c_parsers = Combobox(self.main_window)
         self.c_parsers['values'] = self.parsers
+        self.c_parsers['width'] = 60
+        self.c_parsers.grid(column=2, row=5, sticky=(E))
         
         selected = 0
         if len(self.parsers) > 0:
             selected = len(self.parsers)-1
 
         self.c_parsers.current(selected)
-        self.c_parsers.pack(side=RIGHT)
 
         ############## BUTTON ELEMENTS ################
-        self.button_container = Frame(master)
-        self.button_container['pady'] = 20
-        self.button_container['padx'] = 20
-        self.button_container.pack()
+        self.button_container = Frame(self.main_window)
+        self.button_container.grid(column=2, row=8, sticky=E)
 
         self.b_start = Button(self.button_container)
         self.b_start['text'] = "Start extraction"
-        self.b_start['width'] = 15
         self.b_start['command'] = self.start
-        self.b_start.pack(side=LEFT)
+        self.b_start.pack(side=LEFT, padx='5')
 
         self.b_exit = Button(self.button_container)
         self.b_exit['text'] = "Exit"
-        self.b_exit['width'] = 15
         self.b_exit['command'] = self.exit
         self.b_exit.pack(side=RIGHT)
+
+        for child in self.main_window.winfo_children():
+            child.grid_configure(padx=5, pady=5)
 
     def config(self):
         """
@@ -167,6 +154,8 @@ class Application:
 
 if __name__ == "__main__":
     root = Tk()
+    root.title('Metadata Extractor')
+
     Application(master=root)
 
     try:
