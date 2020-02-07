@@ -143,11 +143,12 @@ class Application:
         """
         Init application with the parameters of the GUI
         """
-        self.dir = self.e_input_dir.get()
+        self.idir = self.e_input_dir.get()
+        self.odir = self.e_output_dir.get()
         self.parser = self.c_parsers.get()
 
-        r = subprocess.call([self.python, self.binary, '-d', self.dir,
-                            '-p', self.parser])
+        r = subprocess.call([self.python, self.binary, '-d', self.idir,
+                            '-p', self.parser, '-o', self.odir])
 
         if r == 0:
             messagebox.showinfo('Success', 'The extraction was a success')
