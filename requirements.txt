@@ -1,0 +1,3 @@
+tika
+lxml
+tkinter
